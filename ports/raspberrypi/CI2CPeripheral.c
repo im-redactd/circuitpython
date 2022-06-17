@@ -79,8 +79,12 @@ static void rp2040_i2cp_print(const mp_print_t *print, mp_obj_t self_in, mp_prin
 /// initialised (it has the settings from the last initialisation of
 /// the bus, if any).  If extra arguments are given, the bus is initialised.
 /// See `init` for parameters of initialisation.
-static mp_obj_t rp2040_i2cp_make_new(const mp_obj_type_t *pType, size_t argCount, size_t keywordCount, const mp_obj_t *pArgs)
-{
+static mp_obj_t rp2040_i2cp_make_new(
+    const mp_obj_type_t *pType, 
+    size_t argCount, 
+    size_t keywordCount,
+    const mp_obj_t *pArgs
+) {
     // I2C bus index, sclPin, sdaPin, and sys_clk integer arguments are required.
     if (argCount < 4) {
         mp_raise_ValueError(MP_ERROR_TEXT("Too few params"));
@@ -139,7 +143,10 @@ static MP_DEFINE_CONST_FUN_OBJ_KW(rp2040_i2cp_init_obj, 1, rp2040_i2cp_init_);
 /// Initialise the I2C bus with the given positional parameters:
 ///
 ///   - `addr` is the optional 7-bit address (defaults to 0x12)
-static mp_obj_t rp2040_i2cp_init_helper(rp2040_i2cp_obj_t *pSelf, size_t argCount, const mp_obj_t *pArgs)
+static mp_obj_t rp2040_i2cp_init_helper(
+    rp2040_i2cp_obj_t *pSelf, 
+    size_t argCount, 
+    const mp_obj_t *pArgs)
 {
     i2c_inst_t* pI2C = pSelf->pI2C;
     mp_int_t address = 0x12;
