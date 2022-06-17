@@ -35,7 +35,8 @@
 #include "hal/include/hal_gpio.h"
 #include "peripherals/samd/sercom.h"
 
-void common_hal_i2cperipheral_i2c_peripheral_construct(i2cperipheral_i2c_peripheral_obj_t *self,
+void common_hal_i2cperipheral_i2c_peripheral_construct(
+    i2cperipheral_i2c_peripheral_obj_t *self,
     const mcu_pin_obj_t *scl, const mcu_pin_obj_t *sda,
     uint8_t *addresses, unsigned int num_addresses, bool smbus) {
     uint8_t sercom_index;
