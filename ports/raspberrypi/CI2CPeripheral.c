@@ -160,6 +160,7 @@ static mp_obj_t rp2040_i2cp_init_helper(
 
     const uint32_t frequency = 400000;
     i2c_init(pI2C, frequency);
+
     gpio_set_function(pSelf->sclPin, GPIO_FUNC_I2C);
     gpio_set_function(pSelf->sdaPin, GPIO_FUNC_I2C);
     gpio_set_pulls(pSelf->sclPin, true, 0);
@@ -206,8 +207,11 @@ static MP_DEFINE_CONST_FUN_OBJ_1(rp2040_i2cp_deinit_obj, rp2040_i2cp_deinit);
 ///   - `timeout` is the timeout in microseconds to wait for the send
 ///
 /// Return value: `None`.
-static mp_obj_t rp2040_i2cp_send(size_t argCount, const mp_obj_t *pArgs, mp_map_t *pKwArgs)
-{
+static mp_obj_t rp2040_i2cp_send(
+    size_t argCount, 
+    const mp_obj_t *pArgs, 
+    mp_map_t *pKwArgs
+){
     if (argCount < 3) {
         mp_raise_ValueError(MP_ERROR_TEXT("Too few params"));
     }
@@ -296,7 +300,11 @@ STATIC mp_obj_t rp2040_i2cp_recv(size_t argCount, const mp_obj_t *pArgs, mp_map_
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_KW(rp2040_i2cp_recv_obj, 1, rp2040_i2cp_recv);
 
-static bool recvFromMaster(i2c_inst_t* pI2C, uint8_t* pDest, size_t len, absolute_time_t stopTime)
+static bool recvFromMaster(
+    i2c_inst_t* pI2C, 
+    uint8_t* pDest, 
+    size_t len, 
+    absolute_time_t stopTime)
 {
     for (size_t i = 0; i < len; ++i) {
         while (!i2c_get_read_available(pI2C)) {

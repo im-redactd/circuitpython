@@ -38,7 +38,8 @@
 void common_hal_i2cperipheral_i2c_peripheral_construct(
     i2cperipheral_i2c_peripheral_obj_t *self,
     const mcu_pin_obj_t *scl, const mcu_pin_obj_t *sda,
-    uint8_t *addresses, unsigned int num_addresses, bool smbus) {
+    uint8_t *addresses, unsigned int num_addresses, bool smbus
+){
     uint8_t sercom_index;
     uint32_t sda_pinmux, scl_pinmux;
     Sercom *sercom = samd_i2c_get_sercom(scl, sda, &sercom_index, &sda_pinmux, &scl_pinmux);
@@ -136,7 +137,13 @@ static int i2c_peripheral_check_error(i2cperipheral_i2c_peripheral_obj_t *self, 
     return -err;
 }
 
-int common_hal_i2cperipheral_i2c_peripheral_is_addressed(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t *address, bool *is_read, bool *is_restart) {
+int common_hal_i2cperipheral_i2c_peripheral_is_addressed(
+    i2cperipheral_i2c_peripheral_obj_t *self, 
+    uint8_t *address, 
+    bool *is_read, 
+    bool *is_restart
+) {
+
     int err = i2c_peripheral_check_error(self, false);
     if (err) {
         return err;
@@ -164,7 +171,11 @@ int common_hal_i2cperipheral_i2c_peripheral_is_addressed(i2cperipheral_i2c_perip
     return 0;
 }
 
-int common_hal_i2cperipheral_i2c_peripheral_read_byte(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t *data) {
+int common_hal_i2cperipheral_i2c_peripheral_read_byte(
+    i2cperipheral_i2c_peripheral_obj_t *self, 
+    uint8_t *data
+) {
+
     for (int t = 0; t < 100 && !self->sercom->I2CS.INTFLAG.reg; t++) {
         mp_hal_delay_us(10);
     }
@@ -181,7 +192,10 @@ int common_hal_i2cperipheral_i2c_peripheral_read_byte(i2cperipheral_i2c_peripher
     return 1;
 }
 
-int common_hal_i2cperipheral_i2c_peripheral_write_byte(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t data) {
+int common_hal_i2cperipheral_i2c_peripheral_write_byte(
+    i2cperipheral_i2c_peripheral_obj_t *self, 
+    uint8_t data
+) {
     for (int t = 0; !self->sercom->I2CS.INTFLAG.reg && t < 100; t++) {
         mp_hal_delay_us(10);
     }
