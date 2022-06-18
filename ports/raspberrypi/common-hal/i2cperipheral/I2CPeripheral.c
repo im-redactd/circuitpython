@@ -59,7 +59,7 @@ void common_hal_i2cperipheral_i2c_peripheral_construct(
 
     mp_printf(&mp_plat_print, "i2cperipheral - you're here: construct.\n");
     mp_printf(&mp_plat_print, "i2cperipheral - addresses: %p.\n", *addresses);
-    mp_printf(&mp_plat_print, "i2cperipheral - num_addresses: %i.\n", num_addresses);
+    mp_printf(&mp_plat_print, "i2cperipheral - num_addresses: %d.\n", num_addresses);
     mp_printf(&mp_plat_print, "i2cperipheral - sda: %p, scl: %p.\n", sda->number,scl->number);
 
     // DEBUG: static set address.
@@ -128,7 +128,7 @@ int common_hal_i2cperipheral_i2c_peripheral_is_addressed(
     bool *is_restart
 ) {
     
-    mp_printf(&mp_plat_print, "i2cperipheral - you're here: is addressed.\n");
+    mp_printf(&mp_plat_print, "i2cperipheral - you're here: is addressed [num address: %d].\n",self->num_addresses);
     
     int err = i2c_peripheral_check_error(self, false);
 
@@ -176,7 +176,7 @@ int common_hal_i2cperipheral_i2c_peripheral_write_byte(i2cperipheral_i2c_periphe
 }
 
 void common_hal_i2cperipheral_i2c_peripheral_ack(i2cperipheral_i2c_peripheral_obj_t *self, bool ack) {
-   mp_printf(&mp_plat_print, "i2cperipheral - you're here: ack.\n");
+    mp_printf(&mp_plat_print, "i2cperipheral - you're here: ack.\n");
     return;
 }
 
