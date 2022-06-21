@@ -24,22 +24,26 @@
  * THE SOFTWARE.
  */
 
-#ifndef MICROPY_INCLUDED_ATMEL_SAMD_COMMON_HAL_BUSIO_I2C_PERIPHERAL_H
-#define MICROPY_INCLUDED_ATMEL_SAMD_COMMON_HAL_BUSIO_I2C_PERIPHERAL_H
+#ifndef MICROPY_INCLUDED_RPI_COMMON_HAL_I2C_PERIPHERAL_H
+#define MICROPY_INCLUDED_RPI_COMMON_HAL_I2C_PERIPHERAL_H
 
-#include "common-hal/microcontroller/Pin.h"
 #include "py/obj.h"
+#include "common-hal/microcontroller/Pin.h"
+#include "src/rp2_common/hardware_i2c/include/hardware/i2c.h"
+
 
 typedef struct {
-    mp_obj_base_t base;
+   mp_obj_base_t base;
 
     uint8_t *addresses;
     unsigned int num_addresses;
+    
+    i2c_inst_t *peripheral;
 
-  //@@      Sercom *sercom;
     uint8_t scl_pin;
     uint8_t sda_pin;
     bool writing;
+    
 } i2cperipheral_i2c_peripheral_obj_t;
 
-#endif // MICROPY_INCLUDED_ATMEL_SAMD_COMMON_HAL_BUSIO_I2C_PERIPHERAL_H
+#endif MICROPY_INCLUDED_RPI_COMMON_HAL_BUSIO_I2C_PERIPHERAL_H
