@@ -80,7 +80,13 @@ void common_hal_i2cperipheral_i2c_peripheral_construct(
         mp_raise_ValueError(translate("I2C peripheral in use"));
     }
 
-    self->addresses = addresses;  // @@kds
+    // kds: copy things into our tracking instanmce.
+    // self->base = ?? ;
+    self->addresses = addresses;
+    self->num_addresses = num_addresses;
+    self->scl_pin = scl->number;
+    self->sda_pin = sda->number;
+    // self->writing = ?? ;
 
     const uint32_t frequency = 400000;
     i2c_init(self->peripheral, frequency);
@@ -99,9 +105,8 @@ void common_hal_i2cperipheral_i2c_peripheral_construct(
 
 bool common_hal_i2cperipheral_i2c_peripheral_deinited(i2cperipheral_i2c_peripheral_obj_t *self) {
 
-    mp_printf(&mp_plat_print, "i2cperipheral - you're here: deinited [%b]\n", self->sda_pin);
+    mp_printf(&mp_plat_print, "i2cperipheral - you're here: deinited; returning false unless 0xff = [%p]\n", self->sda_pin);
     return self->sda_pin == NO_PIN;
-
 }
 
 void common_hal_i2cperipheral_i2c_peripheral_deinit(i2cperipheral_i2c_peripheral_obj_t *self) {
@@ -113,7 +118,6 @@ void common_hal_i2cperipheral_i2c_peripheral_deinit(i2cperipheral_i2c_peripheral
     i2c_deinit(self->peripheral);
     mp_printf(&mp_plat_print, "i2cperipheral - you're here: deinit.\n");
     return;
-
 }
 
 static int i2c_peripheral_check_error(i2cperipheral_i2c_peripheral_obj_t *self, bool raise) {
@@ -127,28 +131,28 @@ int common_hal_i2cperipheral_i2c_peripheral_is_addressed(
     i2cperipheral_i2c_peripheral_obj_t *self,
     uint8_t *address,
     bool *is_read,
-    bool *is_restart
-) {
-
-    mp_printf(&mp_plat_print, "i2cperipheral - you're here: is addressed [num address: %d].\n",self->num_addresses);
+    bool *is_restart)
+{
+    mp_printf(&mp_plat_print, "i2cperipheral - you're here: is addressed [num address: %d].\n", self->num_addresses);
 
     int err = i2c_peripheral_check_error(self, false);
     if (err) {
-        mp_printf(&mp_plat_print, "i2cperipheral - you're here: error in is_addressed.\n");
+        mp_printf(&mp_plat_print, "i2cperipheral - you're here: error in is_addressed: %p.\n", err);
         return err;
     }
 
-    self->writing = false;
-
-    //kds *address = 0x41; //self->addresses[0];
+    //!!@@ *address = ...;
+    *address = self->peripheral->hw->sar;  // kds: best guess again...
 
     *is_read = ((self->peripheral->hw->raw_intr_stat & I2C_IC_RAW_INTR_STAT_RD_REQ_BITS) !=0);
-    *is_restart = false; //???
+    self->writing = ! *is_read;
 
+    // kds: best guess...
+    *is_restart = ((self->peripheral->hw->raw_intr_stat & I2C_IC_RAW_INTR_STAT_RD_REQ_RESET) !=0);
 
     for (unsigned int i = 0; i < self->num_addresses; i++) {
-        mp_printf(&mp_plat_print, "i2cperipheral - %i\n",i);
         if (*address == self->addresses[i]) {
+            mp_printf(&mp_plat_print, "i2cperipheral - is_addressed matched on address %p; is_read:%b, is_restart:%b; sending ack\n", *address, *is_read, *is_restart);
             common_hal_i2cperipheral_i2c_peripheral_ack(self, true);
             return 1;
         }
@@ -157,14 +161,14 @@ int common_hal_i2cperipheral_i2c_peripheral_is_addressed(
     // This should clear AMATCH, but it doesn't...
     common_hal_i2cperipheral_i2c_peripheral_ack(self, false);
 
+    mp_printf(&mp_plat_print, "i2cperipheral - is_addressed no matches; sending nak.");
     return 0;
 }
 
 int common_hal_i2cperipheral_i2c_peripheral_read_byte(
     i2cperipheral_i2c_peripheral_obj_t *self,
-    uint8_t *data
-) {
-
+    uint8_t *data)
+{
     mp_printf(&mp_plat_print, "i2cperipheral - you're here: read byte\n");
 
     uint8_t buffer;
@@ -175,8 +179,8 @@ int common_hal_i2cperipheral_i2c_peripheral_read_byte(
     return (rslt == 1) ? 0 : 1;
 }
 
-int common_hal_i2cperipheral_i2c_peripheral_write_byte(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t data) {
-
+int common_hal_i2cperipheral_i2c_peripheral_write_byte(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t data)
+{
     mp_printf(&mp_plat_print, "i2cperipheral - you're here: write byte\n");
 
     int rslt = i2c_write_blocking(self->peripheral, self->addresses[0], &data, 1, true);
@@ -187,11 +191,11 @@ int common_hal_i2cperipheral_i2c_peripheral_write_byte(i2cperipheral_i2c_periphe
 }
 
 void common_hal_i2cperipheral_i2c_peripheral_ack(i2cperipheral_i2c_peripheral_obj_t *self, bool ack) {
-    mp_printf(&mp_plat_print, "i2cperipheral - you're here: ack.\n");
+    mp_printf(&mp_plat_print, "i2cperipheral - you're here: ack: %b.\n", ack);
     return;
 }
 
 void common_hal_i2cperipheral_i2c_peripheral_close(i2cperipheral_i2c_peripheral_obj_t *self) {
- mp_printf(&mp_plat_print, "i2cperipheral - you're here: peripheral close.\n");
-  return;
+    mp_printf(&mp_plat_print, "i2cperipheral - you're here: peripheral close.\n");
+    return;
 }
