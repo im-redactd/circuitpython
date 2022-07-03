@@ -173,10 +173,10 @@ int common_hal_i2cperipheral_i2c_peripheral_read_byte(
 
     uint8_t buffer;
     int rslt = i2c_read_blocking(self->peripheral, self->addresses[0], &buffer, 1, true);
-    mp_printf(&mp_plat_print, "i2c_read_blocking returned %d", rslt);
+    mp_printf(&mp_plat_print, "i2c_read_blocking returned %d\n", rslt);
 
     // That returned byte-count, so anything but 1 is bad.
-    return (rslt == 1) ? 0 : 1;
+    return (rslt == 1) ? 1 : 0;
 }
 
 int common_hal_i2cperipheral_i2c_peripheral_write_byte(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t data)
@@ -184,9 +184,10 @@ int common_hal_i2cperipheral_i2c_peripheral_write_byte(i2cperipheral_i2c_periphe
     mp_printf(&mp_plat_print, "i2cperipheral - you're here: write byte\n");
 
     int rslt = i2c_write_blocking(self->peripheral, self->addresses[0], &data, 1, true);
-    mp_printf(&mp_plat_print, "i2c_write_blocking returned %d", rslt);
+    mp_printf(&mp_plat_print, "i2c_write_blocking returned %d\n", rslt);
 
     // That returned byte-count, so anything but 1 is bad.
+    // TODO(ken): this logic seems reversed, but things seem to work better this way. need to figure this out.
     return (rslt == 1) ? 0 : 1;
 }
 
